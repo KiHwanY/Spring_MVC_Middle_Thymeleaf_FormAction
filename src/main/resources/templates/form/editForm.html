@@ -19,21 +19,42 @@
     </div>
 
     <form action="item.html" th:action th:object="${item}" method="post">
+        <!--
+       ${item} : editForm() 에서 model 에 담겨서 넘어온 특정 객체 (아래 코드 주석)
+       Item item = itemRepository.findById(itemId);
+       model.addAttribute("item", item);
+   -->
         <div>
             <label for="id">상품 ID</label>
             <input type="text" id="id" class="form-control" th:field="*{id}" readonly>
+            <!--
+           th 가 name, value, id 를 만들어준다.
+           <input type="text" id="id" name="id" class="form-control" value="1" th:value="${item.id}" readonly>
+           -->
         </div>
         <div>
             <label for="itemName">상품명</label>
             <input type="text" id="itemName" class="form-control" th:field="*{itemName}" >
+            <!--
+            th 가 name, value, id 를 만들어준다.
+            <input type="text" id="itemName" name="itemName" class="form-control" value="상품A" th:value="${item.itemName}">
+            -->
         </div>
         <div>
             <label for="price">가격</label>
             <input type="text" id="price" class="form-control" th:field="*{price}">
+            <!--
+           th 가 name, value, id 를 만들어준다.
+           <input type="text" id="price" name="price" class="form-control" value="10000" th:value="${item.price}">
+           -->
         </div>
         <div>
             <label for="quantity">수량</label>
             <input type="text" id="quantity" class="form-control" th:field="*{quantity}">
+            <!--
+           th 가 name, value, id 를 만들어준다.
+           <input type="text" id="quantity" name="quantity" class="form-control" value="10" th:value="${item.quantity}">
+           -->
         </div>
 
         <hr class="my-4">
@@ -51,9 +72,22 @@
         <div>
             <div>등록 지역</div>
             <div th:each="region : ${regions}" class="form-check form-check-inline">
+                <!--
+               @ModelAttribute 에 담겨서 넘어온 것(regions()) 반복문 돌리기
+               ${regions} : Map<String, String>. 사용자가 선택해서 넘어온 것이 아니라 FormItemController 에서 @ModelAttribute 자체가 그대로 넘어왔기 때문.
+               -->
                 <input type="checkbox" th:field="*{regions}" th:value="${region.key}" class="form-check-input">
+                <!--
+                th 가 name, value, id 을 만들어줌. 이 때, id는 field 에 숫자가 붙여져 고유하게 만들어진다.
+                *{regions} : ${item.regions}의 생략 버전. 빈 리스트. 사용자가 각 체크박스를 체크해서 POST 요청 보낼 때 regions.key가 날아감. item.regions 에 값이 바인딩될 것.
+                ${region.key} : 위 div 태그의 Map의 key 중 하나. "SEOUL", "BUSAN", "JEJU" 중 하나 (반복문이니깐). 사용자가 각 체크박스를 체크해서 POST 요청 보낼 때 regions.key가 날아감. 이후 item.regions 에 값이 바인딩될 것.
+                -->
                 <label th:for="${#ids.prev('regions')}"
                        th:text="${region.value}" class="form-check-label">서울</label>
+                <!--
+              ${#ids.prev('필드명')} : 바로 이전 태그에서 사용되었던 id를 그대로 가져와서 사용. 물론 위 태그에서 th가 id 자동생성해줬다.
+              ${region.value} : 위 div 태그의 Map의 value 하나. "서울", "부산", "제주" 중 하나 (반복문이니깐)
+              -->
             </div>
         </div>
 

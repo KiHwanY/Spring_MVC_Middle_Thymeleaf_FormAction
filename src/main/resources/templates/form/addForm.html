@@ -8,6 +8,9 @@
         .container {
             max-width: 560px;
         }
+
+
+
     </style>
 </head>
 <body>
@@ -26,17 +29,30 @@ th:field : HTML 태그의 id,name,value 속성을 자동으로 처리해준다.
     </div>
 
     <form action="item.html" th:action th:object="${item}" method="post">
+        <!--
+          ${item} : addForm() 에서 model 에 담겨서 넘어온 새로운 객체 (아래 코드 주석)
+          model.addAttribute("item", new Item());
+  -->
         <div>
             <label for="itemName">상품명</label>
             <input type="text" id="itemName" th:field="*{itemName}" class="form-control" placeholder="이름을 입력하세요">
+            <!--
+          <input type="text" id="itemName" name="itemName" th:field="*{itemName}" class="form-control" placeholder="이름을 입력하세요">
+          -->
         </div>
         <div>
             <label for="price">가격</label>
             <input type="text" id="price" th:field="*{price}" class="form-control" placeholder="가격을 입력하세요">
+            <!--
+            <input type="text" id="price" name="price" class="form-control" placeholder="가격을 입력하세요">
+            -->
         </div>
         <div>
             <label for="quantity">수량</label>
             <input type="text" id="quantity" th:field="*{quantity}" class="form-control" placeholder="수량을 입력하세요">
+            <!--
+            <input type="text" id="quantity" name="quantity" class="form-control" placeholder="수량을 입력하세요">
+            -->
         </div>
         <!--
         th:object="{item}" :<form> 에서 사용할 객체를 지정한다. 선택 변수 식 *{...}을 적용할 수 있다.
@@ -58,7 +74,31 @@ th:field : HTML 태그의 id,name,value 속성을 자동으로 처리해준다.
         <div>판매 여부</div>
         <div>
             <div class="form-check">
+                <!--
+                 히든필드 추가
+                 <input type="checkbox" id="open" name="open" class="form-check-input" />
+                 <input type="hidden" id="_open" name="_open" value="on" />
+             -->
+
+                <!--
+                HTML checkbox 는 체크하지 않으면 서버로 값 자체를 보내지 않는다. (히든필드 사용하지 않을 경우)
+                HTML 메시지: itemName=11&price=11&quantity=11
+                spring: item.open = null
+
+                즉. HTML checkbox 는 사용하기 불편할 수 있다. 그래서 spring 은 히든필드를 운용한다.
+
+                HTML checkbox 는 체크되지 않으면 서버로 히든필드만 전송한다. 그럼 spring 은 필드가 false 라고 판단한다.
+                HTML 메시지: itemName=22&price=22&quantity=22&_open=on
+                spring: item.open = false
+
+                HTML checkbox 가 체크되면 필드와 히든필드를 서버로 전송된다.
+                HTML 메시지: itemName=33&price=33&quantity=33&open=on&_open=on. 그럼 spring 은 필드가 true 라고 판단한다.
+                spring: item.open = true
+                -->
                 <input type="checkbox" id="open" th:field="*{open}" class="form-check-input">
+                <!--
+               th 를 사용하면 알아서 히든필드를 만들어내기 때문에 HTML checkbox 를 편하게 사용할 수 있다.
+               -->
                 <label for="open" class="form-check-label">판매 오픈</label>
             </div>
         </div>
@@ -67,9 +107,22 @@ th:field : HTML 태그의 id,name,value 속성을 자동으로 처리해준다.
         <div>
             <div>등록 지역</div>
             <div th:each="region : ${regions}" class="form-check form-check-inline">
+                <!--
+                @ModelAttribute 에 담겨서 넘어온 것(regions()) 반복문 돌리기
+                ${regions} : Map<String, String>. 사용자가 선택해서 넘어온 것이 아니라 FormItemController 에서 @ModelAttribute 자체가 그대로 넘어왔기 때문.
+                -->
                 <input type="checkbox" th:field="*{regions}" th:value="${region.key}" class="form-check-input">
+                <!--
+                th 가 name, value, id 을 만들어줌. 이 때, id는 field 에 숫자가 붙여져 고유하게 만들어진다.
+                *{regions} : ${item.regions}의 생략 버전. Map<String, String>. 사용자가 선택해서 넘어온 것이 아니라 FormItemController 에서 @ModelAttribute 자체가 그대로 넘어왔기 때문.
+                ${region.key} : 위 div 태그의 Map의 key 중 하나. "SEOUL", "BUSAN", "JEJU" 중 하나 (반복문이니깐). 사용자가 각 체크박스를 체크해서 POST 요청 보낼 때 regions.key가 날아감. 이후 item.regions 에 값이 바인딩될 것.
+                -->
                 <label th:for="${#ids.prev('regions')}"
                        th:text="${region.value}" class="form-check-label">서울</label>
+                <!--
+              ${#ids.prev('필드명')} : 바로 이전 태그에서 사용되었던 id를 그대로 가져와서 사용. 물론 위 태그에서 th가 id 자동생성해줬다.
+              ${region.value} : 위 div 태그의 Map의 value 중 하나. "서울", "부산", "제주" 중 하나 (반복문이니깐)
+              -->
             </div>
         </div>
 
@@ -77,7 +130,14 @@ th:field : HTML 태그의 id,name,value 속성을 자동으로 처리해준다.
         <div>
             <div>상품 종류</div>
             <div th:each="type : ${itemTypes}" class="form-check form-check-inline">
+                <!--
+               @ModelAttribute 에 담겨서 넘어온 것(itemTypes()) 반복문 돌리기
+               ${regions} : ItemTypes[]. 사용자가 선택해서 넘어온 것이 아니라 FormItemController 에서 @ModelAttribute 자체가 그대로 넘어왔기 때문.
+               -->
                 <input type="radio" th:field="*{itemType}" th:value="${type.name()}" class="form-check-input">
+                <!--
+                *{itemType} :
+                -->
                 <label th:for="${#ids.prev('itemType')}" th:text="${type.description}" class="form-check-label">
                     BOOK
                 </label>
@@ -90,7 +150,8 @@ th:field : HTML 태그의 id,name,value 속성을 자동으로 처리해준다.
             <select th:field="*{deliveryCode}" class="form-select">
                 <option value="">==배송 방식 선택==</option>
                 <option th:each="deliveryCode : ${deliveryCodes}" th:value="${deliveryCode.code}"
-                        th:text="${deliveryCode.displayName}">FAST</option>
+                        th:text="${deliveryCode.displayName}">FAST
+                </option>
             </select>
         </div>
 
@@ -104,7 +165,8 @@ th:field : HTML 태그의 id,name,value 속성을 자동으로 처리해준다.
                 <button class="w-100 btn btn-secondary btn-lg"
                         onclick="location.href='items.html'"
                         th:onclick="|location.href='@{/form/items}'|"
-                        type="button">취소</button>
+                        type="button">취소
+                </button>
             </div>
         </div>
 

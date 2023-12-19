@@ -50,6 +50,10 @@
     <div>
         <div class="form-check">
             <input type="checkbox" id="open" th:field="${item.open}" class="form-check-input" disabled>
+            <!--
+            th 가 name, value, id 을 만들어줌
+            체크박스가 체크되어 있다면 checked="checked" 속성까지 만들어줌. 체크되지 않았다면 속성 만들어지지 않음.
+            -->
             <label for="open" class="form-check-label">판매 오픈</label>
         </div>
     </div>
@@ -59,9 +63,23 @@
     <div>
         <div>등록 지역</div>
         <div th:each="region : ${regions}" class="form-check form-check-inline">
+            <!--
+            @ModelAttribute 에 담겨서 넘어온 것(regions()) 반복문 돌리기
+            ${regions} : Map<String, String>. 사용자가 선택해서 넘어온 것이 아니라 FormItemController 에서 @ModelAttribute 자체가 그대로 넘어왔기 때문.
+            -->
             <input type="checkbox" th:field="${item.regions}" th:value="${region.key}" class="form-check-input" disabled>
+            <!--
+           th 가 name, value, id 을 만들어줌. 이 때, id는 field 에 숫자가 붙여져 고유하게 만들어진다.
+           ${item.regions} : List. 사용자가 선택했던 요소들이 담긴 리스트이므로 ["SEOUL", "BUSAN"] 등의 리스트.
+           ${region.key} : 위 div 태그의 Map의 key 하나. "SEOUL", "BUSAN", "JEJU" 중 하나 (반복문이니깐)
+           value("SEOUL", "BUSAN", "JEJU" 중 하나)가 field(Map<String, String>) 의 요소에 존재한다면 th가 checked="checked" 속성을 만들어줌.
+           -->
             <label th:for="${#ids.prev('regions')}"
                    th:text="${region.value}" class="form-check-label">서울</label>
+            <!--
+            ${#ids.prev('필드명')} : 바로 이전 input 태그에서 사용되었던 id를 그대로 가져와서 사용. 물론 위 태그에서 th가 id 자동생성해줬다.
+            ${region.value} : 위 div 태그의 Map의 value 하나. "서울", "부산", "제주" 중 하나 (반복문이니깐)
+            -->
         </div>
     </div>
 

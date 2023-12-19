@@ -24,6 +24,9 @@ public class FormItemController {
 
     private final ItemRepository itemRepository;
 
+    //LinkedHashMap -> HashMap의 단점 중 하나인, put을 통해 데이터나 객체를 넣을때 key의 순서가 지켜지지 않다는 것이다.
+    //입력된 Key의 순서가 보장되어야 한다면 LinkedHashMap을 사용하면 된다.
+    //LinkedHashMap은 put을 통해 입력된 순서대로 Key가 보장되므로 해당 문제를 해결할 수 있다. 사용법은 HashMap과 동일하다.
     @ModelAttribute("regions")
     public Map<String, String> regions() {
         Map<String, String> regions = new LinkedHashMap<>();
@@ -35,7 +38,7 @@ public class FormItemController {
 
     @ModelAttribute("itemTypes")
     public ItemType[] itemTypes() {
-        return ItemType.values();
+        return ItemType.values(); // ItemType.values();를 사용하면 ENUM의 모든 정보를 배열로 반환한다.
     }
 
     @ModelAttribute("deliveryCodes")
